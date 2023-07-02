@@ -1,0 +1,6 @@
+{
+    "parent": "item/handheld",
+    "textures": {
+        "layer0": "mattertransporter:item/netherite_matter_transporter"
+    }
+}

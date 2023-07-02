@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		" e ",
+		" de",
+		"s  "
+	],
+	"key": {
+		"e": {
+			"tag": "forge:ender_pearls"
+		},
+		"d": {
+			"tag": "forge:ingots/netherite"
+		},
+		"s": {
+			"tag": "forge:rods/wooden"
+		}
+	},
+	"result": {
+		"item": "mattertransporter:netherite_matter_transporter"
+	}
+}
