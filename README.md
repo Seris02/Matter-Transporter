@@ -4,7 +4,7 @@ A simple mod that adds a matter transporter, from the mod [Practicalities](https
 
 Also adds a netherite, unbreakable version of said matter transporter. Uses the same sprites, because the license is only all rights reserved for code!
 
-Hopefully I'm not being a jerk?? This is really just me porting it to 1.19.2 tbh, though it's all written from scratch (and thus hopefully not being a jerk??). Works the same way, except that the matter transporter automatically changes the facing position now as well.
+Hopefully I'm not being a jerk?? This is really just me porting it to 1.19.2 tbh, though it's all written from scratch (and thus hopefully not being a jerk??). Works the same way, except that the matter transporter automatically changes the facing position now as well, and removes waterlogging.
 
 Credits to *Joe "Jotato" Kaiser!* Without them this wouldn't be possible.
 
