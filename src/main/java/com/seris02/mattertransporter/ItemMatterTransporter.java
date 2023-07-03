@@ -1,11 +1,17 @@
 package com.seris02.mattertransporter;
 
+import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -15,13 +21,13 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -41,8 +47,6 @@ public class ItemMatterTransporter extends Item {
 		if (world.isClientSide) {
 			return new InteractionResultHolder<ItemStack>(InteractionResult.FAIL, matter);
 		}
-		
-		System.out.println("Starting");
 		
 		BlockHitResult ray = getPlayerPOVHitResult(world, player, ClipContext.Fluid.NONE);
 		BlockPos lookPos = ray.getBlockPos();
@@ -66,12 +70,16 @@ public class ItemMatterTransporter extends Item {
 		
 		if (hasBlock && nbt.contains("blockstate")) {
 			CompoundTag statenbt = nbt.getCompound("blockstate");
-			if (statenbt.contains("Properties") && statenbt.getCompound("Properties").contains("facing")) {
+			if (statenbt.contains("Properties")) {
 				CompoundTag prop = statenbt.getCompound("Properties");
-				prop.putBoolean("waterlogged", false);
-				Vec3 n = player.getLookAngle();
-				prop.putString("facing", Direction.getNearest(n.x, n.y, n.z).getOpposite().getName());
-				statenbt.put("Properties", prop);
+				if (prop.contains("facing")) {
+					Vec3 n = player.getLookAngle();
+					prop.putString("facing", Direction.getNearest(n.x, n.y, n.z).getOpposite().getName());
+					statenbt.put("Properties", prop);
+				}
+				if (prop.contains("waterlogged")) {
+					prop.putBoolean("waterlogged", false);
+				}
 			}
 			BlockState state = NbtUtils.readBlockState(statenbt);
 			if (state == null) {
@@ -130,6 +138,20 @@ public class ItemMatterTransporter extends Item {
 
 	@Override
 	public boolean isFoil(ItemStack item) {
-	   return item.serializeNBT().getBoolean("has_block");
+		CompoundTag nbt = item.serializeNBT().getCompound("tag");
+		return nbt != null && nbt.contains("has_block") && nbt.getBoolean("has_block");
+	}
+
+	@Override
+	public void appendHoverText(ItemStack item, @Nullable Level p_41422_, List<Component> text, TooltipFlag p_41424_) {
+		CompoundTag nbt = item.serializeNBT().getCompound("tag");
+		if (nbt != null && nbt.contains("has_block") && nbt.getBoolean("has_block")) {
+			BlockState state = NbtUtils.readBlockState(nbt.getCompound("blockstate"));
+			if (state != null) {
+				TextComponent contains = new TextComponent("Contains: " + state.getBlock().getName().getString());
+				contains.setStyle(contains.getStyle().withColor(ChatFormatting.DARK_GRAY).withItalic(true));
+				text.add(contains);
+			}
+		}
 	}
 }
