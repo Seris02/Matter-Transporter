@@ -1,12 +1,16 @@
 package com.seris02.mattertransporter;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
@@ -25,6 +29,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -81,7 +86,8 @@ public class ItemMatterTransporter extends Item {
 					prop.putBoolean("waterlogged", false);
 				}
 			}
-			BlockState state = NbtUtils.readBlockState(statenbt);
+			HolderGetter<Block> holdergetter = (HolderGetter<Block>)(world != null ? world.holderLookup(Registries.BLOCK) : BuiltInRegistries.BLOCK.asLookup());
+			BlockState state = NbtUtils.readBlockState(holdergetter, statenbt);
 			if (state == null) {
 				nbt.putBoolean("has_block", false);
 				return new InteractionResultHolder<ItemStack>(InteractionResult.FAIL, matter);
@@ -113,7 +119,9 @@ public class ItemMatterTransporter extends Item {
 				world.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.4F, 0.7F);
 				nbtTotal.put("tag", nbt);
 				matter.deserializeNBT(nbtTotal);
-				matter.hurt(damageOnPickup, RandomSource.create(), (ServerPlayer) player);
+				matter.hurtAndBreak(damageOnPickup, player, (level) -> {
+					level.broadcastBreakEvent(hand);
+				});
 			}
 			
 		} else {
@@ -143,10 +151,11 @@ public class ItemMatterTransporter extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack item, @Nullable Level p_41422_, List<Component> text, TooltipFlag p_41424_) {
+	public void appendHoverText(ItemStack item, @Nullable Level world, List<Component> text, TooltipFlag p_41424_) {
 		CompoundTag nbt = item.serializeNBT().getCompound("tag");
 		if (nbt != null && nbt.contains("has_block") && nbt.getBoolean("has_block")) {
-			BlockState state = NbtUtils.readBlockState(nbt.getCompound("blockstate"));
+			HolderGetter<Block> holdergetter = (HolderGetter<Block>)(world != null ? world.holderLookup(Registries.BLOCK) : BuiltInRegistries.BLOCK.asLookup());
+			BlockState state = NbtUtils.readBlockState(holdergetter, nbt.getCompound("blockstate"));
 			if (state != null) {
 				Component contains = Component.literal("Contains: " + state.getBlock().getName().getString());
 				Style s = Style.EMPTY.withColor(ChatFormatting.DARK_GRAY).withItalic(true);
