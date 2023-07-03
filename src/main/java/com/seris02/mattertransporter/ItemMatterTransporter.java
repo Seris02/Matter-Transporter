@@ -1,5 +1,7 @@
 package com.seris02.mattertransporter;
 
+import java.util.Random;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -7,7 +9,6 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -104,7 +105,7 @@ public class ItemMatterTransporter extends Item {
 				world.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.4F, 0.7F);
 				nbtTotal.put("tag", nbt);
 				matter.deserializeNBT(nbtTotal);
-				matter.hurt(damageOnPickup, RandomSource.create(), (ServerPlayer) player);
+				matter.hurt(damageOnPickup, new Random(), (ServerPlayer) player);
 			}
 			
 		} else {
